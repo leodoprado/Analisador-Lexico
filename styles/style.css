@@ -154,8 +154,12 @@ button:hover {
     font-size: 1.3rem;
 }
 
-.list-group-item{
-    display: contents;
+.list-group-item {
+    background-color: #00a0a0;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
 }
 
 #tabelaTokens {

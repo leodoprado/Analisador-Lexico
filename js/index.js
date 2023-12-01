@@ -2,7 +2,7 @@ var tokens = [];
 var valuesGlobal = 0;
 var valueInteration = [0];
 var table = [];
-var valores = [[]];
+var values = [[]];
 
 $(document).ready(function(){
   montarTabela();
@@ -11,9 +11,15 @@ $(document).ready(function(){
   });
 });
 
+$('#token').keyup(function(e){
+  if (e.keyCode === 13) {
+    adicionarToken();
+  }
+});
+
 // Função responsável por montar a tabela de Tokens
 function montarTabela(){
-  valores = [[]];
+  values = [[]];
   valuesGlobal = 0;
   valueInteration = [0];
   table = [];
@@ -22,79 +28,51 @@ function montarTabela(){
   gerarTabela(table);
 }
 
-// Função responsável por remover lista de Tokens
-function removerTokens (e) {
-  $('#token').val("");
-  $('#validarToken').val("");
-  $('#validarToken').removeClass('certo');
-  $('#validarToken').removeClass('errado');
-  tokens = [];
-  $('#listaTokens').empty();
-  $('#tabelaTokens').empty();
-  montarTabela();
-}
-
-// Função responsável por adicionar um novo Token
-function adicionarToken() {
-  var value = $("#token").val().toLowerCase();
-  if(value === ""){
-    $('#token').addClass('errado');
-    setTimeout(function(){
-      $('#token').removeClass('errado');
-    }, 2000);
-  } else {
-    var addNext = true;
-      // Verifica se no Token a ser adicionado tem algum caractere que nao seja de (a-z)
-      for (var i = 0; i < value.length; i++) {
-        if(!((value[i] >= 'a' && value[i] <= 'z') || value[i] === ' ')){
-          alert('Caractere inválido ' + value[i]);
-          addNext = false;
-          break;
-        }
+// Função responsável por montar os estados dos Tokens adicionados
+function montarEstados(){
+  // Itera sobre todos os Tokens da tabela
+  for (var i = 0; i < tokens.length; i++) {
+    var actualState = 0;
+    var word = tokens[i];
+    // Itera sobre os caracteres do Token
+    for(var j = 0; j < word.length; j++){
+      if(typeof values[actualState][word[j]] === 'undefined'){
+        var nextState = valuesGlobal + 1;
+        values[actualState][word[j]] = nextState;
+        values[nextState] = [];
+        valuesGlobal = actualState = nextState;
+      } else {
+        actualState = values[actualState][word[j]];
       }
-      // Somente letras de (a-z)
-      if (addNext) {
-        // Quebra a string em dois Tokens
-        value = value.split(" ");
-        var number = tokens.length;
-        // Adiciona vários Tokens
-        if(value.length > 1){
-          for (i = 0; i < value.length; i++) {
-            var exists = false;
-            number = tokens.length;
-            if(value[i] !== ""){
-              // Verifica se o Token não é vazio ou se já foi adicionado
-              for (j = 0; j < tokens.length; j++) {
-                if(value[i] === tokens[j]){
-                  exists = true;
-                }
-              }
-            }
-          }
-        } else {
-          var exists = false;
-          // Verifica se o próximo Token não existe
-          for (j = 0; j < tokens.length; j++) {
-            if(value[0] === tokens[j]){
-              exists = true;
-            }
-          }
-          // Adiciona na lista de Tokens caso não exista
-          if(!exists){
-            $('#listaTokens').append($('<td class="list-group-item" id="word' + number + '">' + value[0] +
-            ' </td>'));
-            tokens.push(value[0]);
-          }
-        }
-        // Limpa o campo de Tokens
-        $("#token").val("");
+      if(j == word.length - 1){
+        values[actualState]['final'] = true;
       }
     }
-    $('#tabelaTokens').empty();
-    $('#validarToken').val("");
-    $('#validarToken').removeClass('certo');
-    $('#validarToken').removeClass('errado');
-    montarTabela();
+  }
+}
+
+// Função responsável por gerar as linhas da tabela contendo os estados necessários
+function gerarLinhasTabela(){
+  var vectorvalues = [];
+  for (var i = 0; i < values.length; i++) {
+    var aux = [];
+    aux['estado'] = i;
+    var first = 'a';
+    var last = 'z';
+    for (var j = first.charCodeAt(0); j <= last.charCodeAt(0); j++) {
+      var letter = String.fromCharCode(j);
+      if(typeof values[i][letter] === 'undefined'){
+        aux[letter] = '-'
+      } else {
+        aux[letter] = values[i][letter]
+      }
+    }
+    if(typeof values[i]['final'] !== 'undefined'){
+      aux['final'] = true;
+    }
+    vectorvalues.push(aux);
+  };
+  return vectorvalues;
 }
 
 // Função responsável por criar a tabela
@@ -141,54 +119,83 @@ function gerarTabela(vectorvalues){
   }
 }
 
-// Função responsável por gerar as linhas da tabela contendo os estados necessários.
-function gerarLinhasTabela(){
-  var vectorvalues = [];
-  for (var i = 0; i < valores.length; i++) {
-    var aux = [];
-    aux['estado'] = i;
-    var first = 'a';
-    var last = 'z';
-    for (var j = first.charCodeAt(0); j <= last.charCodeAt(0); j++) {
-      var letter = String.fromCharCode(j);
-      if(typeof valores[i][letter] === 'undefined'){
-        aux[letter] = '-'
-      } else {
-        aux[letter] = valores[i][letter]
+// Função responsável por adicionar um novo Token
+function adicionarToken() {
+  var value = $("#token").val().toLowerCase();  
+  if(value === ""){
+    $('#token').addClass('errado');
+    setTimeout(function(){
+      $('#token').removeClass('errado');
+    }, 2000);
+  } else {
+    var addNext = true;
+      // Verifica se no Token a ser adicionado tem algum caractere que nao seja de (a-z)
+      for (var i = 0; i < value.length; i++) {
+        if(!((value[i] >= 'a' && value[i] <= 'z') || value[i] === ' ')){
+          alert('Caractere inválido ' + value[i]);
+          addNext = false;
+          break;
+        }
+      }
+      // Somente letras de (a-z)
+      if (addNext) {
+        value = value.split(" ");
+        var number = tokens.length;
+        // Adiciona Tokens
+        if(value.length > 1){
+          for (i = 0; i < value.length; i++) {
+            var exists = false;
+            number = tokens.length;
+            if(value[i] !== ""){
+              // Verifica se o Token não é vazio ou se já foi adicionado
+              for (j = 0; j < tokens.length; j++) {
+                if(value[i] === tokens[j]){
+                  exists = true;
+                }
+              }
+            }
+          }
+        } else {
+          var exists = false;
+          for (j = 0; j < tokens.length; j++) {
+            if(value[0] === tokens[j]){
+              exists = true;
+            }
+          }
+          // Adiciona na lista de Tokens caso não exista
+          if(!exists){
+            var $newToken = $('<td class="list-group-item" id="word' + number + '">' + value[0] + '</td>');
+
+            $newToken.addClass('list-group-item');
+
+            $('#listaTokens').append($newToken);
+              tokens.push(value[0]);
+            }
+        }
+        // Limpa o campo de Adicionar Tokens
+        $("#token").val("");
       }
     }
-    if(typeof valores[i]['final'] !== 'undefined'){
-      aux['final'] = true;
-    }
-    vectorvalues.push(aux);
-  };
-  return vectorvalues;
+    $('#tabelaTokens').empty();
+    $('#validarToken').val("");
+    $('#validarToken').removeClass('certo');
+    $('#validarToken').removeClass('errado');
+    montarTabela();
 }
 
-// Função responsável por montar os estados dos Tokens adicionados.
-function montarEstados(){
-  // Itera sobre todos os Tokens da tabela
-  for (var i = 0; i < tokens.length; i++) {
-    var actualState = 0;
-    var word = tokens[i];
-    // Itera sobre os caracteres do Token
-    for(var j = 0; j < word.length; j++){
-      if(typeof valores[actualState][word[j]] === 'undefined'){
-        var nextState = valuesGlobal + 1;
-        valores[actualState][word[j]] = nextState;
-        valores[nextState] = [];
-        valuesGlobal = actualState = nextState;
-      } else {
-        actualState = valores[actualState][word[j]];
-      }
-      if(j == word.length - 1){
-        valores[actualState]['final'] = true;
-      }
-    }
-  }
+// Função responsável por remover lista de Tokens
+function removerTokens (e) {
+  $('#token').val("");
+  $('#validarToken').val("");
+  $('#validarToken').removeClass('certo');
+  $('#validarToken').removeClass('errado');
+  tokens = [];
+  $('#listaTokens').empty();
+  $('#tabelaTokens').empty();
+  montarTabela();
 }
 
-// Função responsável por validar os estados dos Tokens adicionados.
+// Função responsável por validar os estados dos Tokens adicionados
 function validarToken(event){
   var tokens = $('#validarToken').val().toLowerCase();
   var estado = 0;
