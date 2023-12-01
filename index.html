@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador Léxico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Analisador Léxico</h1>
+        <p>by: Leonardo do Prado - <a href="https://github.com/leodoprado/LF2023-AnalisadorLexico.git" target="_blank">Repositório GitHub</a> </p>
+    </header>
+    <main>
+        <div class="container">
+            <div class="form1">
+                <div class="tokens">
+                    <p class="titulo">Adicionar Tokens</p>
+                    <div class="subTitulo"></div>
+                    <input id="token" type="text" placeholder="informe a palavra que deseja adicionar"/><br>
+                    <button onclick="adicionarToken();">Adicionar Token</button>
+                </div>
+    
+                <div class="tokens">
+                    <p class="titulo">Buscar Token</p>
+                    <div class="subTitulo"></div>
+                    <input type="text" id="validarToken" autocomplete="off" placeholder="tecle *espaço* para buscar a palavra"/>
+                    <br>
+                    <button onclick="removerTokens();">Remover Tokens</button>
+                </div>    
+            </div>
+    
+            <div class="form2">
+                <div id="tokens">
+                    <p class="titulo">Lista de Tokens</p>
+                    <div class="subTitulo" style="margin-bottom: 2px;"></div>
+                    <table class="list-group">     
+                        <tbody id="listaTokens"></tbody>
+                    </table>
+                </div>    
+            </div>
+            
+            <div class="form3">
+                <table id="tabelaTokens"></table>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+</body>
+
+</html>
